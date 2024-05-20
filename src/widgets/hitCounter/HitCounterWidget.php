@@ -8,6 +8,7 @@ namespace coderius\hitCounter\widgets\hitCounter;
 
 use Yii;
 use coderius\hitCounter\Module;
+use coderius\hitCounter\entities\HitCounter;
 use yii\base\Widget;
 use yii\helpers\Json;
 use yii\web\View;
