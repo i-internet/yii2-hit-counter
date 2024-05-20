@@ -40,7 +40,7 @@ class m190926_110717_hit_counter__table extends Migration
             'serv_user_agent' => $this->text()->null(),
             'serv_referer_url' => $this->text()->null(),
             'serv_server_name' => $this->string()->null(),
-            'serv_auth_user_id' => $this->integer()->unsigned()->null(),
+            'serv_auth_user_id' => $this->integer()->null(),
             'serv_port' => $this->integer()->unsigned()->null(),
             'serv_cookies' => 'JSON',
             
