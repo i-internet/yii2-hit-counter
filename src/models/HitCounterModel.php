@@ -54,6 +54,15 @@ class HitCounterModel extends Model{
     //     }
     // }
 
+    
+    /**
+     * @inheritdoc
+     */
+    public static function tableName()
+    {
+        return '{{%hit_counter}}';
+    }
+
     /**
      * {@inheritdoc}
      */
