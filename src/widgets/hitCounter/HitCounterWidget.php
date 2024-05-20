@@ -16,12 +16,14 @@ use yii\helpers\Html;
 use yii\base\InvalidParamException;
 use yii\helpers\Url;
 use coderius\hitCounter\config\Enum;
+use coderius\hitCounter\traits\RequestTrait;
 
 /**
  * Widget.
  */
 class HitCounterWidget extends Widget
 {
+        use RequestTrait;
     const COUNTER_VIEW_INVISIBLE = 'invisible';
 
     /**
@@ -59,6 +61,8 @@ class HitCounterWidget extends Widget
 
     private $counterName = "Hit counter";
 
+     private $doNotRun = false;
+
     /**
      * Undocumented function
      *
@@ -92,6 +96,20 @@ class HitCounterWidget extends Widget
         if(null === $this->counterId){
             $this->counterId = $this->getId();
         }
+          $existingRecord = HitCounter::find()->where([
+            'serv_ip' => Yii::$app->request->getUserIP(),
+            'counter_id' => $this->counterId,
+            'serv_host_by_ip' => $this->getHostByAddr()
+        ])->andWhere([
+            'between',
+            'created_at',
+            date('Y-m-d 00:00:00'),  // Start of the day
+            date('Y-m-d 23:59:59')   // End of the day
+        ])->limit(1)->one();
+        if (!empty($existingRecord)) {
+            $this->doNotRun = true;
+            return false;
+        }
 
         // Set defaults in src img (with params to be transferred to the controller)
         $defCOpts = [
@@ -122,13 +140,13 @@ class HitCounterWidget extends Widget
     public function run()
     {
         parent::run();
-
-        //Create counter by event hendler when trigger event in view component View::EVENT_END_PAGE
-        Yii::debug('Starting make counter code in app view', __METHOD__);
-        // $this->getView()->on(\yii\base\View::EVENT_END_PAGE, [$this, 'makeCounter']);
-        return $this->makeCounter();
-        Yii::debug('Ending make counter code in app view', __METHOD__);
-        
+          if (!$this->doNotRun) {
+            //Create counter by event hendler when trigger event in view component View::EVENT_END_PAGE
+            Yii::debug('Starting make counter code in app view', __METHOD__);
+            // $this->getView()->on(\yii\base\View::EVENT_END_PAGE, [$this, 'makeCounter']);
+            return $this->makeCounter();
+            Yii::debug('Ending make counter code in app view', __METHOD__);
+          }
     }
 
     /**
