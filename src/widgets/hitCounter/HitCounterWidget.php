@@ -89,6 +89,41 @@ class HitCounterWidget extends Widget
             Enum::PERIOD_MONTH,
         ];
     }
+    public function updateVisitCount()
+    {
+        $ip = Yii::$app->request->getUserIP();
+        $counterId = $this->counterId;
+        $hostByIP = $this->getHostByAddr();
+
+        // Selecting the existing record
+        $sqlSelect = "SELECT id, visit_count FROM tbl_hit_counter 
+                  WHERE serv_ip = :ip AND 
+                        counter_id = :counterId AND 
+                        serv_host_by_ip = :hostByIP AND
+                        created_at BETWEEN :startDate AND :endDate
+                  LIMIT 1";
+
+        $existingRecord = Yii::$app->db->createCommand($sqlSelect, [
+            ':ip' => $ip,
+            ':counterId' => $counterId,
+            ':hostByIP' => $hostByIP,
+            ':startDate' => date('Y-m-d 00:00:00'),
+            ':endDate' => date('Y-m-d 23:59:59')
+        ])->queryOne();
+
+        // If found, update the visit count
+        if ($existingRecord) {
+            $newVisitCount = $existingRecord['visit_count'] + 1;
+            $sqlUpdate = "UPDATE tbl_hit_counter SET visit_count = :visitCount 
+                      WHERE id = :id";
+
+            Yii::$app->db->createCommand($sqlUpdate, [
+                ':visitCount' => $newVisitCount,
+                ':id' => $existingRecord['id']
+            ])->execute();
+        }
+    }
+
 
     public function init()
     {
@@ -108,6 +143,7 @@ class HitCounterWidget extends Widget
             date('Y-m-d 23:59:59')   // End of the day
         ])->limit(1)->one();
         if (!empty($existingRecord)) {
+            $this->updateVisitCount();
             $this->doNotRun = true;
             return false;
         }
