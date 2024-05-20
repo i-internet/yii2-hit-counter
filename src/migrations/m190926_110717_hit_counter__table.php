@@ -52,12 +52,14 @@ class m190926_110717_hit_counter__table extends Migration
             'serv_bot' => $this->string()->null(),
             'serv_host_by_ip' => $this->string()->null(),
             'serv_is_proxy_or_vpn' => $this->boolean()->notNull()->defaultValue(0),
-
+            'visit_count' => $this->integer()->notNull()->defaultValue(0),
             'created_at' => $this->dateTime()->notNull(),
         ], $tableOptions);
 
         $this->createIndex('{{%idx-hit_counter-cookie_mark}}', '{{%hit_counter}}', 'cookie_mark');
         $this->createIndex('{{%idx-hit_counter-serv_ip}}', '{{%hit_counter}}', 'serv_ip');
+        $this->createIndex('{{%idx-hit_counter-serv_host_by_ip}}', '{{%hit_counter}}', 'serv_host_by_ip');
+        $this->createIndex('{{%idx-hit_counter-counter_id}}', '{{%hit_counter}}', 'counter_id');
         $this->createIndex('{{%idx-hit_counter-serv_auth_user_id}}', '{{%hit_counter}}', 'serv_auth_user_id');
         $this->createIndex('{{%idx-hit_counter-created_at}}', '{{%hit_counter}}', 'created_at');
 
